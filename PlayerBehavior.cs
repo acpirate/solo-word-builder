@@ -41,12 +41,14 @@ public class PlayerBehavior : MonoBehaviour {
 		//routine for testing blank tile, forcing blank to always be first tile
 		//shelf.AddTile(bag.DrawBlank());
 		
+		// draw tiles to fill the shelf
 		
+		shelf.FillTiles();
 		//draw 7 tiles
 		//place on shelf
-		for(int drawCounter=0;drawCounter<ShelfBehavior.maxTiles;drawCounter++) {
-			shelf.AddTile(bag.Draw()); 
-		}
+		//for(int drawCounter=0;drawCounter<ShelfBehavior.maxTiles;drawCounter++) {
+			//shelf.AddTile(bag.Draw()); 
+		//}
 	}
 	
 	
@@ -64,6 +66,7 @@ public class PlayerBehavior : MonoBehaviour {
 				StatusBarBehavior.Display("You got "+ CalculateScore(scoredWords[0]) +" for "+extractedWord);
 				totalScore+=CalculateScore(scoredWords[0]);
 				workingTiles.Clear();
+				shelf.FillTiles();
 				
 			}
 			else StatusBarBehavior.Display(extractedWord+" is not in the dictionary");

@@ -67,8 +67,37 @@ public class ShelfBehavior : MonoBehaviour {
 		tile.localPosition=new Vector3(tile.GetComponent<TileBehavior>().oldPostion,0,-2);
 		tile.GetComponent<BoxCollider>().size=new Vector3(1,1,1);
 	}
-
+	
+	//called by the player after a word is scored
+	public void FillTiles() {
 		
+		CompactTiles();
+		
+		
+		for (int i = transform.childCount;i<maxTiles;i++) {
+			AddTile(bag.Draw());
+		}
+		
+	}
+		
+	//moves the tiles down the shelf so new tiles can be added
+	void CompactTiles() {
+		List<Transform> tempTiles=new List<Transform>();
+		
+		foreach(Transform tile in transform) {
+			tempTiles.Add(tile);
+		}	
+		
+		foreach(Transform tile in tempTiles) {
+			tile.parent=null;
+		}	
+		
+		foreach(Transform tile in tempTiles) {	
+			AddTile(tile);	
+		}
+		
+	}
+	
 	// called when the player presses a key to determine which tile should be selected
 	public void KeyboardSelect(char selectedLetter) {
 		foreach(Transform tile in transform) {
