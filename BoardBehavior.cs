@@ -259,13 +259,14 @@ public class BoardBehavior : MonoBehaviour {
 		
 		foreach (Transform tileToCheck in placedTiles) {
 			if (downOrAcross=="down") {
-				if (tileToCheck.parent.GetComponent<SpaceBehavior>().x>lastPlacedSpacePosition) {
-					lastPlacedSpacePosition=tileToCheck.parent.GetComponent<SpaceBehavior>().x;
+				if (tileToCheck.parent.GetComponent<SpaceBehavior>().y>lastPlacedSpacePosition) {
+					lastPlacedSpacePosition=tileToCheck.parent.GetComponent<SpaceBehavior>().y;
 				}		
 			}		
 			if (downOrAcross=="across") {
-				if (tileToCheck.parent.GetComponent<SpaceBehavior>().y>lastPlacedSpacePosition) {
-					lastPlacedSpacePosition=tileToCheck.parent.GetComponent<SpaceBehavior>().y;
+				//Debug.Log(lastPlacedSpacePosition);
+				if (tileToCheck.parent.GetComponent<SpaceBehavior>().x>lastPlacedSpacePosition) {
+					lastPlacedSpacePosition=tileToCheck.parent.GetComponent<SpaceBehavior>().x;
 				}		
 			}			
 		}
@@ -283,47 +284,109 @@ public class BoardBehavior : MonoBehaviour {
 	
 	//method called by the player to validate the word
 	public static List<List<Transform>> GetScoredWords(List<Transform> placedTiles) {
+		
+	/*	foreach(Transform tile in placedTiles) {
+			Debug.Log(tile.GetComponent<TileBehavior>().glyph);
+		}*/
+		
+		
 		List <Transform> tempword= new List<Transform>();
 		
 		bool wordGoingDown=true;
 		bool wordGoingAcross=true;
-		bool middlecovered=false;
+		bool middleCovered=false;
 		bool tilesContiguous=false;
-		List<List<Transform>> scoredWords=new List<List <Transform>>();
+		bool singleTile=false;
+		//tiles adjacent is only checked if the middle is covered
+		bool tilesAdjacent=false;
 		
-
+		//flag for first word, checked later to see if we test for adjacent tiles
+		bool firstWord=true;
 		
-		//check to make sure tiles are all in the same row or column
-		for (int i = 1;i<placedTiles.Count;i++) {
-			//Debug.Log ("letter of tile i"+placedTiles[i].GetComponent<TileBehavior>().glyph.ToString()+", letter of tile i-1 "+placedTiles[i-1].GetComponent<TileBehavior>().glyph.ToString());
-			//Debug.Log ("x coordinates of tiles i"+placedTiles[i].parent.GetComponent<SpaceBehavior>().x+", x coordinates of tiles i-1 "+placedTiles[i-1].parent.GetComponent<SpaceBehavior>().x);
-			if ((placedTiles[i].parent.GetComponent<SpaceBehavior>().x)!=(placedTiles[i-1].parent.GetComponent<SpaceBehavior>().x)) {
-				//Debug.Log ("X"+i);
-				wordGoingDown=false; 		
-			}
-			if (placedTiles[i].parent.GetComponent<SpaceBehavior>().y != placedTiles[i-1].parent.GetComponent<SpaceBehavior>().y) {
-				//Debug.Log ("Y"+i);
-				wordGoingAcross=false;
-			}
-		}
+		
+		List<List<Transform>> scoredWords=new List<List <Transform>>();		
+		
 		// check to make sure the center is covered
 		if (spaces[boardCenter,boardCenter].GetComponent<SpaceBehavior>().hasTile) {
-			middlecovered=true;	
+			middleCovered=true;	
+			
 		}
 		
-		//check to see if tiles are contiguous
-		if (wordGoingDown || wordGoingAcross) {
-			if (wordGoingDown) {
-				tilesContiguous=TilesContiguous(CalculateFirstPlacedSpace("down",placedTiles),CalculateLastPlacedSpace("down",placedTiles),placedTiles,"down");
+		
+		//only fire this if the middle is covered or else it will give an out of range error
+		if (middleCovered) {
+			if (spaces[boardCenter,boardCenter].GetComponentInChildren<TileBehavior>().scored) {
+				firstWord=false;
+				//Debug.Log("This is not the first word");
 			}
-			else tilesContiguous=TilesContiguous(CalculateFirstPlacedSpace("across",placedTiles),CalculateLastPlacedSpace("across",placedTiles),placedTiles,"across");
+			else {
+				//Debug.Log("This is the first word");
+			}			
 		}
+		
+		// if this isn't the first word then check to see if the tiles placed are adjacent to other tiles
+		if (!(firstWord)) {
+			tilesAdjacent=CheckAdjacent(placedTiles);
+		}
+		
+		Debug.Log("tiles adjacent"+tilesAdjacent);
+		
+		//logic to check for a single tile
+		if (placedTiles.Count==1) singleTile=true;
+		
+		
+		//check to make sure tiles are all in the same row or column, only do this if there isn't a single tile
+		if (!(singleTile)) {
+		
+			for (int i = 1;i<placedTiles.Count;i++) {
+			//Debug.Log ("letter of tile i"+placedTiles[i].GetComponent<TileBehavior>().glyph.ToString()+", letter of tile i-1 "+placedTiles[i-1].GetComponent<TileBehavior>().glyph.ToString());
+			//Debug.Log ("x coordinates of tiles i"+placedTiles[i].parent.GetComponent<SpaceBehavior>().x+", x coordinates of tiles i-1 "+placedTiles[i-1].parent.GetComponent<SpaceBehavior>().x);
+				if ((placedTiles[i].parent.GetComponent<SpaceBehavior>().x)!=(placedTiles[i-1].parent.GetComponent<SpaceBehavior>().x)) {
+				//Debug.Log ("X"+i);
+					wordGoingDown=false; 		
+				}
+				if (placedTiles[i].parent.GetComponent<SpaceBehavior>().y != placedTiles[i-1].parent.GetComponent<SpaceBehavior>().y) {
+				//Debug.Log ("Y"+i);
+					wordGoingAcross=false;
+				}
+			}
+			
+			//check to see if tiles are contiguous
+			if (wordGoingDown || wordGoingAcross) {
+				if (wordGoingDown) {
+					tilesContiguous=TilesContiguous(CalculateFirstPlacedSpace("down",placedTiles),CalculateLastPlacedSpace("down",placedTiles),placedTiles,"down");
+				}
+				else {
+					//Debug.Log(CalculateLastPlacedSpace("across",placedTiles));
+					tilesContiguous=TilesContiguous(CalculateFirstPlacedSpace("across",placedTiles),CalculateLastPlacedSpace("across",placedTiles),placedTiles,"across");
+					
+				}
+			}						
+			
+		}
+		
+		
+
+		// if the middle tile exists and is scored we know this is the 2nd or subsequent word
+		
+		
+		
+
 		//Debug.Log("wordgoingdown "+wordGoingDown+" wordgoingacross "+wordGoingAcross);
 		
-		//if tile placement rules aren't followed correctly display error message and stop
-		if (!((wordGoingDown || wordGoingAcross) && middlecovered && tilesContiguous)) {
+		/* if tile placement rules aren't followed correctly display error message and stop
+			
+			tests are either it is a single tile
+			or the multiple tiles are in one row or column, and there are contiguous tiles between the first placed tile and the last placed tile
+			and the middle is covered and this is the first word OR the tiles are placed next to a previously scored word
+			
+			((((wordGoingDown || wordGoingAcross) && tilesContiguous) || singleTile) && middleCovered)
+			
+			
+		*/
+		if (!((((wordGoingDown || wordGoingAcross) && tilesContiguous) || singleTile) && ((middleCovered && firstWord) || tilesAdjacent) )) {
 			//Debug.Log("wordGoingDown "+wordGoingDown.ToString()+" wordGoingAcross "+wordGoingAcross.ToString()+" middlecovered "+middlecovered.ToString()+" tilescontiguous "+tilesContiguous.ToString());
-			StatusBarBehavior.Display("the tiles are not placed correctly");
+			StatusBarBehavior.Display("tiles must be in same row or column and either in the center or adjacent to previously scored tiles");
 
 			
 		}
@@ -333,7 +396,7 @@ public class BoardBehavior : MonoBehaviour {
 						
 			
 			if (wordGoingDown) {
-			Debug.Log("entering buildword down");
+			//Debug.Log("entering buildword down");
 				//Debug.Log("wordGoingDown"+placedTiles[0].parent.GetComponent<SpaceBehavior>().x.ToString()+","+CalculateFirstPlacedSpace("down",placedTiles).ToString());
 				tempword=BuildWord("down",   spaces[placedTiles[0].parent.GetComponent<SpaceBehavior>().x,CalculateFirstPlacedSpace("down",placedTiles)]);
 				
@@ -351,8 +414,66 @@ public class BoardBehavior : MonoBehaviour {
 		}
 		
 		return scoredWords;
-		
 	}
+	
+	
+	//method used to check to make sure tiles are adjacent
+	static bool CheckAdjacent(List<Transform> placedTiles) {
+		bool isAdjacent=false;
+		
+		foreach(Transform tile in placedTiles) {
+			if (CheckNeighbors(tile)) {
+				isAdjacent=true;	
+			}	
+		}	
+		
+		return isAdjacent;
+	}
+	
+	
+	//chescks a tiles neighbors to see if there is a scored tile there
+	static bool CheckNeighbors(Transform tile) {
+		bool hasNeighbors=false;
+		
+		SpaceBehavior tileSpace=tile.parent.GetComponent<SpaceBehavior>();
+		//check top
+		if (tileSpace.y>1) {
+			Transform neighborToCheck=spaces[tileSpace.x,tileSpace.y-1];
+			
+			if (neighborToCheck.GetComponent<SpaceBehavior>().hasTile && neighborToCheck.GetComponentInChildren<TileBehavior>().scored) {
+				hasNeighbors=true;
+			}			
+		}	
+		
+		//check bottom
+		if (tileSpace.y<boardRowSize) {
+			Transform neighborToCheck=spaces[tileSpace.x,tileSpace.y+1];			
+			if (neighborToCheck.GetComponent<SpaceBehavior>().hasTile && neighborToCheck.GetComponentInChildren<TileBehavior>().scored) {
+				hasNeighbors=true;
+			}				
+		}			
+		
+		//check left
+		if (tileSpace.x>1) {
+			Transform neighborToCheck=spaces[tileSpace.x-1,tileSpace.y];			
+			if (neighborToCheck.GetComponent<SpaceBehavior>().hasTile && neighborToCheck.GetComponentInChildren<TileBehavior>().scored) {
+				hasNeighbors=true;
+			}				
+		}	
+		
+		//check right
+		if (tileSpace.x<boardRowSize) {
+			Transform neighborToCheck=spaces[tileSpace.x+1,tileSpace.y];
+			if (neighborToCheck.GetComponent<SpaceBehavior>().hasTile && neighborToCheck.GetComponentInChildren<TileBehavior>().scored) {
+				hasNeighbors=true;
+			}			
+		}	
+		
+		
+		return hasNeighbors;
+	}	
+	
+	
 	
 	//method that is used to build a word from scoring
 	static List<Transform> BuildWord(String downOrAcross, Transform firstSpace) {
@@ -362,24 +483,25 @@ public class BoardBehavior : MonoBehaviour {
 		
 		
 		if (downOrAcross=="down") {
+			//Debug.Log("in walk down function");
 			walkcounter=firstSpace.GetComponent<SpaceBehavior>().y-1;
 			//walk backwards
-			while((spaces[firstSpace.GetComponent<SpaceBehavior>().x,walkcounter].GetComponent<SpaceBehavior>().hasTile) && walkcounter>=1) {
+			while(walkcounter>=1 && (spaces[firstSpace.GetComponent<SpaceBehavior>().x,walkcounter].GetComponent<SpaceBehavior>().hasTile)) {
 				walkcounter--;
-				Debug.Log("down word walk backwards loop");
+				//Debug.Log("down word walk backwards loop");
 			}
 			walkcounter++;
-			Debug.Log(firstSpace.GetComponent<SpaceBehavior>().x+" "+walkcounter);
+			//Debug.Log(firstSpace.GetComponent<SpaceBehavior>().x+" "+walkcounter);
 			//walk forwards and fill word
-			while((spaces[firstSpace.GetComponent<SpaceBehavior>().x,walkcounter].GetComponent<SpaceBehavior>().hasTile) && walkcounter<=15) {
+			while(walkcounter<=15 && (spaces[firstSpace.GetComponent<SpaceBehavior>().x,walkcounter].GetComponent<SpaceBehavior>().hasTile)) {
 				tempLetter=spaces[firstSpace.GetComponent<SpaceBehavior>().x,walkcounter];
-				Debug.Log("in walk foward loop");
+				//Debug.Log("in walk foward loop");
 				//if (tempLetter=='*') tempLetter=spaces[firstSpace.GetComponent<SpaceBehavior>().x,walkcounter].GetComponentInChildren<TileBehavior>().wildLetter;
 				//Debug.Log(tempLetter.ToString());
 				buildWord.Add(tempLetter);
 				//Debug.Log(buildWord);
 				walkcounter++;
-				Debug.Log("next space is "+walkcounter+" "+firstSpace.GetComponent<SpaceBehavior>().y);
+				//Debug.Log("next space is "+walkcounter+" "+firstSpace.GetComponent<SpaceBehavior>().y);
 			}			
 			
 			
@@ -388,13 +510,14 @@ public class BoardBehavior : MonoBehaviour {
 			//Debug.Log("in across walk function");
 			walkcounter=firstSpace.GetComponent<SpaceBehavior>().x-1;
 			//walk backwards
-			while((spaces[walkcounter,firstSpace.GetComponent<SpaceBehavior>().y].GetComponent<SpaceBehavior>().hasTile) && walkcounter>=1) {
+			while(walkcounter>=1 && (spaces[walkcounter,firstSpace.GetComponent<SpaceBehavior>().y].GetComponent<SpaceBehavior>().hasTile)) {
+				//Debug.Log("in walk backwards");
 				walkcounter--;
 			}
 			walkcounter++;
 			//Debug.Log(walkcounter+" "+firstSpace.GetComponent<SpaceBehavior>().y);
 			//walk forwards and fill word
-			while((spaces[walkcounter,firstSpace.GetComponent<SpaceBehavior>().y].GetComponent<SpaceBehavior>().hasTile) && walkcounter<=15) {
+			while(walkcounter<=15 && (spaces[walkcounter,firstSpace.GetComponent<SpaceBehavior>().y].GetComponent<SpaceBehavior>().hasTile)) {
 				tempLetter=spaces[walkcounter,firstSpace.GetComponent<SpaceBehavior>().y];
 				//Debug.Log("in walk foward loop");
 				//if (tempLetter=='*') tempLetter=spaces[walkcounter,firstSpace.GetComponent<SpaceBehavior>().y].GetComponentInChildren<TileBehavior>().wildLetter;
@@ -425,7 +548,7 @@ public class BoardBehavior : MonoBehaviour {
 			if (downOrAcross=="down") {
 				if (!(spaces[placedTiles[0].parent.GetComponent<SpaceBehavior>().x,i].GetComponent<SpaceBehavior>().hasTile)) {
 					tilesContiguous=false;
-					Debug.Log(placedTiles[0].parent.GetComponent<SpaceBehavior>().x);
+					//Debug.Log(placedTiles[0].parent.GetComponent<SpaceBehavior>().x);
 				}				
 			}
 			else {
@@ -434,7 +557,7 @@ public class BoardBehavior : MonoBehaviour {
 					//Debug.Log("incolumntest");
 				}				
 			}
-			Debug.Log(i+" tilescontiguous "+tilesContiguous);
+			//Debug.Log(i+" tilescontiguous "+tilesContiguous);
 		}
 		
 		return tilesContiguous;
