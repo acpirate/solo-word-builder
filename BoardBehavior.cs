@@ -288,8 +288,7 @@ public class BoardBehavior : MonoBehaviour {
 	/*	foreach(Transform tile in placedTiles) {
 			Debug.Log(tile.GetComponent<TileBehavior>().glyph);
 		}*/
-		
-		
+
 		List <Transform> tempword= new List<Transform>();
 		
 		bool wordGoingDown=true;
@@ -298,12 +297,10 @@ public class BoardBehavior : MonoBehaviour {
 		bool tilesContiguous=false;
 		bool singleTile=false;
 		//tiles adjacent is only checked if the middle is covered
-		bool tilesAdjacent=false;
-		
+		bool tilesAdjacent=false;		
 		//flag for first word, checked later to see if we test for adjacent tiles
 		bool firstWord=true;
-		
-		
+		//list of scored words which is returned to the player to check against the dictionary
 		List<List<Transform>> scoredWords=new List<List <Transform>>();		
 		
 		// check to make sure the center is covered
@@ -311,8 +308,7 @@ public class BoardBehavior : MonoBehaviour {
 			middleCovered=true;	
 			
 		}
-		
-		
+
 		//only fire this if the middle is covered or else it will give an out of range error
 		if (middleCovered) {
 			if (spaces[boardCenter,boardCenter].GetComponentInChildren<TileBehavior>().scored) {
@@ -329,11 +325,10 @@ public class BoardBehavior : MonoBehaviour {
 			tilesAdjacent=CheckAdjacent(placedTiles);
 		}
 		
-		Debug.Log("tiles adjacent"+tilesAdjacent);
+		//Debug.Log("tiles adjacent"+tilesAdjacent);
 		
 		//logic to check for a single tile
 		if (placedTiles.Count==1) singleTile=true;
-		
 		
 		//check to make sure tiles are all in the same row or column, only do this if there isn't a single tile
 		if (!(singleTile)) {
@@ -364,14 +359,6 @@ public class BoardBehavior : MonoBehaviour {
 			}						
 			
 		}
-		
-		
-
-		// if the middle tile exists and is scored we know this is the 2nd or subsequent word
-		
-		
-		
-
 		//Debug.Log("wordgoingdown "+wordGoingDown+" wordgoingacross "+wordGoingAcross);
 		
 		/* if tile placement rules aren't followed correctly display error message and stop
@@ -380,8 +367,7 @@ public class BoardBehavior : MonoBehaviour {
 			or the multiple tiles are in one row or column, and there are contiguous tiles between the first placed tile and the last placed tile
 			and the middle is covered and this is the first word OR the tiles are placed next to a previously scored word
 			
-			((((wordGoingDown || wordGoingAcross) && tilesContiguous) || singleTile) && middleCovered)
-			
+			((((wordGoingDown || wordGoingAcross) && tilesContiguous) || singleTile) && middleCovered)			
 			
 		*/
 		if (!((((wordGoingDown || wordGoingAcross) && tilesContiguous) || singleTile) && ((middleCovered && firstWord) || tilesAdjacent) )) {
@@ -391,30 +377,94 @@ public class BoardBehavior : MonoBehaviour {
 			
 		}
 		else {
-		//if we made it this far then we know the tiles are placed correctly now we need to build the word that is being scored
-		
-						
+		//if we made it this far then we know the tiles are placed correctly now we need to build the word that is being scored	
 			
-			if (wordGoingDown) {
-			//Debug.Log("entering buildword down");
-				//Debug.Log("wordGoingDown"+placedTiles[0].parent.GetComponent<SpaceBehavior>().x.ToString()+","+CalculateFirstPlacedSpace("down",placedTiles).ToString());
-				tempword=BuildWord("down",   spaces[placedTiles[0].parent.GetComponent<SpaceBehavior>().x,CalculateFirstPlacedSpace("down",placedTiles)]);
-				
-				
-				
-			}	
-			else {
-				
+			//check to see if there is only one tile, if there is we skip building the "initial" word
+			if(!(singleTile)) {
+				if (wordGoingDown) {
+					//Debug.Log("entering buildword down");
+					//Debug.Log("wordGoingDown"+placedTiles[0].parent.GetComponent<SpaceBehavior>().x.ToString()+","+CalculateFirstPlacedSpace("down",placedTiles).ToString());
+					tempword=BuildWord("down",   spaces[placedTiles[0].parent.GetComponent<SpaceBehavior>().x,CalculateFirstPlacedSpace("down",placedTiles)]);		
+				}	
+				else {
 				//Debug.Log ("wordGoingAcross"+CalculateLastPlacedSpace("across",placedTiles).ToString()+","+placedTiles[0].parent.GetComponent<SpaceBehavior>().x.ToString());
-				tempword=BuildWord("across",spaces[CalculateFirstPlacedSpace("across",placedTiles),placedTiles[0].parent.GetComponent<SpaceBehavior>().y]);
-			}	
-				
-			scoredWords.Add(tempword);
+					tempword=BuildWord("across",spaces[CalculateFirstPlacedSpace("across",placedTiles),placedTiles[0].parent.GetComponent<SpaceBehavior>().y]);
+				}	
+				scoredWords.Add(tempword);
+			}
+			
+			//now loop over all the placed tiles and check each one to see if it makes a word in the opposite of the "main" direction"
+			foreach(Transform tile in placedTiles) {
+				tempword=new List<Transform>();
+				if (wordGoingDown || singleTile) {
+					tempword=getPerpendicularWord("down",tile);
+					if (tempword.Count>0) scoredWords.Add(tempword);
+				}	
+				if (wordGoingAcross || singleTile) {
+					tempword=getPerpendicularWord("across",tile);
+					if (tempword.Count>0) scoredWords.Add(tempword);
+				}	
+			}
+			
 			
 		}
+		Debug.Log(scoredWords.Count);
 		
 		return scoredWords;
 	}
+	
+	//check tiles to see if there are any words being made perpendicular to the main word
+	static List<Transform> getPerpendicularWord(string acrossOrDown, Transform tile) {
+		List<Transform> tempWord=new List<Transform>();
+		
+		//check neighbors on perpendicular to see if there are any letters
+		if (CheckPerpendicular(acrossOrDown,tile.parent)) {
+			//Debug.Log("there is a word perpendicular to "+tile.GetComponent<TileBehavior>().glyph);
+			List<Transform> tempTiles=new List<Transform>();
+			tempTiles.Add(tile);
+				if (acrossOrDown=="down") {
+					//Debug.Log("entering buildword down");
+					//Debug.Log("wordGoingDown"+placedTiles[0].parent.GetComponent<SpaceBehavior>().x.ToString()+","+CalculateFirstPlacedSpace("down",placedTiles).ToString());
+					tempWord=BuildWord("down", spaces[tile.parent.GetComponent<SpaceBehavior>().x,CalculateFirstPlacedSpace("down",tempTiles)]);		
+				}	
+				else {
+				//Debug.Log ("wordGoingAcross"+CalculateLastPlacedSpace("across",placedTiles).ToString()+","+placedTiles[0].parent.GetComponent<SpaceBehavior>().x.ToString());
+					tempWord=BuildWord("across",spaces[CalculateFirstPlacedSpace("across",tempTiles),tile.parent.GetComponent<SpaceBehavior>().y]);
+				}			
+			
+		}	
+		return tempWord;
+	}	
+	
+	
+	//this thecks the perpendicular for each tile in the opposite direction of the initial word
+	static bool CheckPerpendicular(string acrossOrDown, Transform space) {
+		bool makesWord=false;
+		SpaceBehavior tempSpace=space.GetComponent<SpaceBehavior>();
+		
+		
+		if (acrossOrDown=="across") {	
+			if (tempSpace.y>1) {
+				if (spaces[tempSpace.x,tempSpace.y-1].GetComponent<SpaceBehavior>().hasTile) makesWord=true;
+			}	
+			if (tempSpace.y<15) {	
+				if (spaces[tempSpace.x,tempSpace.y+1].GetComponent<SpaceBehavior>().hasTile) makesWord=true;
+			}				
+		}
+		if (acrossOrDown=="down") {
+			if (tempSpace.x>1) {
+				if (spaces[tempSpace.x-1,tempSpace.y].GetComponent<SpaceBehavior>().hasTile) makesWord=true;
+			}	
+			if (tempSpace.x<15) {
+				if (spaces[tempSpace.x+1,tempSpace.y].GetComponent<SpaceBehavior>().hasTile) makesWord=true;
+			}			
+		}	
+		
+		
+		return makesWord;
+	}	
+	
+	
 	
 	
 	//method used to check to make sure tiles are adjacent

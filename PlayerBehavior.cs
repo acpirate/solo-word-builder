@@ -56,20 +56,38 @@ public class PlayerBehavior : MonoBehaviour {
 	public void ScoreWord() {
 		//list of lists of spaces containing all of the words that were scored
 		List<List <Transform>> scoredWords=BoardBehavior.GetScoredWords(workingTiles);
+		bool wordsInDictionary=true;
 		string extractedWord;
 		
 		
 		if (scoredWords.Count>0) {
-			extractedWord=ExtractWord(scoredWords[0]);
+			string invalidWord="";
 			
-			if (GameRules.dictionary.Contains(extractedWord)) {
-				StatusBarBehavior.Display("You got "+ CalculateScore(scoredWords[0]) +" for "+extractedWord);
-				totalScore+=CalculateScore(scoredWords[0]);
-				workingTiles.Clear();
-				shelf.FillTiles();
+			foreach(List<Transform> word in scoredWords) {
+				extractedWord=ExtractWord(word);
+				if (!(GameRules.dictionary.Contains(extractedWord))) {
+					wordsInDictionary=false;
+					invalidWord=extractedWord;
+				}	
+			}			
 				
+			if (wordsInDictionary) {
+				string statusString="";
+				foreach (List<Transform> word in scoredWords) {
+					extractedWord=ExtractWord(word);
+					int tempScore=CalculateScore(word);
+					statusString+=extractedWord+" scored "+tempScore+" ";
+					totalScore+=tempScore;					
+				}	
+					statusString+="Total Score Is "+totalScore;
+					workingTiles.Clear();
+					shelf.FillTiles();
+					StatusBarBehavior.Display(statusString);
 			}
-			else StatusBarBehavior.Display(extractedWord+" is not in the dictionary");
+			else {
+					StatusBarBehavior.Display(invalidWord+" is not in the dictionary");
+
+			}		
 		}
 	}
 	
@@ -97,11 +115,12 @@ public class PlayerBehavior : MonoBehaviour {
 			//remove the tile from the working tiles list so i can't be removed with backspace
 		}
 		
-		//50 point bonus for using 7 letters
-		if (workingTiles.Count==7) tempScore+=50;
+	
 		//dobule and triple letter bonus, cant get both on standard scrabble board and can't get any more than once so not worrying about extra multipliers
 		if (scoreDoubleWord) tempScore*=2;
 		if (scoreTripleWord) tempScore*=3;
+		//50 point bonus for using 7 letters
+		if (workingTiles.Count==7) tempScore+=50;
 		
 		return tempScore;
 	}	
