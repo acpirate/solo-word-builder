@@ -80,11 +80,17 @@ public class BagBehavior : MonoBehaviour {
 	
 	//called by the player to take a tile 
 	public Transform Draw() {
-	
+		
+		
+		Transform tempTile=null;
 		//choose random child tile object and pass it to the shelf
 		
-		return (transform.GetChild(UnityEngine.Random.Range(0,transform.childCount)));
 		
+		//only run this function if there is at least one tile in the bag
+		if (transform.childCount>0) {
+			tempTile=transform.GetChild(UnityEngine.Random.Range(0,transform.childCount));
+		}
+		return tempTile;
 		
 		
 	}

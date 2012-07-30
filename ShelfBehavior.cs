@@ -18,6 +18,8 @@ public class ShelfBehavior : MonoBehaviour {
 	static float shelfSpaceUnit = (float)1.0/ (float)maxTiles;
 	static int shelfCenter=(int)((maxTiles+1)*.5);
 	
+	//reference to the tile warning bar
+	public Transform tileWarningBar;
 	
 	// Use this for initialization
 	void Awake () {
@@ -26,7 +28,7 @@ public class ShelfBehavior : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+		
 	}
 		
 	//take the passed in tile and add it to the shelf, scale and position the tile on the shelf
@@ -75,7 +77,15 @@ public class ShelfBehavior : MonoBehaviour {
 		
 		
 		for (int i = transform.childCount;i<maxTiles;i++) {
-			AddTile(bag.Draw());
+			Transform tempTile=bag.Draw();
+			
+			if (tempTile) {
+				AddTile(tempTile);
+			}
+			else {
+				tileWarningBar.GetComponentInChildren<GUIText>().text="There are no tiles left";
+			}
+			
 		}
 		
 	}
