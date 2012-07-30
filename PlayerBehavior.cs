@@ -80,14 +80,23 @@ public class PlayerBehavior : MonoBehaviour {
 					totalScore+=tempScore;					
 				}	
 					statusString+="Total Score Is "+totalScore;
+				
+					//score each working tile
+					foreach (Transform tile in workingTiles) {
+						tile.GetComponent<TileBehavior>().ScoreTile();	
+					}
+					//clear the working tiles so they can't be removed with backspace
 					workingTiles.Clear();
+					//draw new tiles from the bag to fill the shelf
 					shelf.FillTiles();
+					//tell the player the results of their placement
 					StatusBarBehavior.Display(statusString);
 			}
 			else {
 					StatusBarBehavior.Display(invalidWord+" is not in the dictionary");
 
-			}		
+			}
+									
 		}
 	}
 	
@@ -110,8 +119,6 @@ public class PlayerBehavior : MonoBehaviour {
 				if (spaceReference.type=="Triple Letter") tempScore+=(tileReference.scoreValue*2);
 			}
 			tempScore+=tileReference.scoreValue;
-			//mark the tile as scored so it can't be moved anymore
-			tileReference.ScoreTile();
 			//remove the tile from the working tiles list so i can't be removed with backspace
 		}
 		
