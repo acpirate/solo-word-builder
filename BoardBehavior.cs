@@ -385,7 +385,7 @@ public class BoardBehavior : MonoBehaviour {
 		*/
 		if (!((((wordGoingDown || wordGoingAcross) && tilesContiguous) || singleTile) && ((middleCovered && firstWord) || tilesAdjacent) )) {
 			//Debug.Log("wordGoingDown "+wordGoingDown.ToString()+" wordGoingAcross "+wordGoingAcross.ToString()+" middlecovered "+middlecovered.ToString()+" tilescontiguous "+tilesContiguous.ToString());
-			StatusBarBehavior.Display("tiles must be in same row or column and either in the center or adjacent to previously scored tiles");
+			StatusBarBehavior.Display("tiles must be in same row or column and\neither in the center or adjacent to previously scored tiles");
 
 			
 		}

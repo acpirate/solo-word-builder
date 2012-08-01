@@ -52,6 +52,8 @@ public class PlayerBehavior : MonoBehaviour {
 	}
 	
 	
+
+	
 	// called when the player has finished placing his tiles and clicks the "score" button	
 	public void ScoreWord() {
 		//list of lists of spaces containing all of the words that were scored
