@@ -81,7 +81,7 @@ public class PlayerBehavior : MonoBehaviour {
 					statusString+=extractedWord+" scored "+tempScore+" ";
 					totalScore+=tempScore;					
 				}	
-					statusString+="Total Score Is "+totalScore;
+					statusString+="\nTotal Score Is "+totalScore;
 				
 					//score each working tile
 					foreach (Transform tile in workingTiles) {
@@ -159,19 +159,16 @@ public class PlayerBehavior : MonoBehaviour {
 			UnDesignateSelectedTile();
 			DesignateSelectedTile (inTile);			
 		}
-		StatusBarBehavior.Display("");
 	}
 	
 	// functions to group tile selection behavior
 	void DesignateSelectedTile(Transform inTile) {
 		selectedTile=inTile;
 		HighlightSelectedTile();
-		//board.Darken();
 	}
 	
 	void UnDesignateSelectedTile() {
 		UnhighlightSelectedTile();
-		//board.Lighten();
 	}
 	
 	// functions to group highlighting behavior for selected tiles
@@ -257,7 +254,8 @@ public class PlayerBehavior : MonoBehaviour {
 		
 		//if there is a tile selected AND the space clicked is valid then move the tile to the space, add it to the working tiles list, recalculate valid spaces
 		//no longer constraining to only valid spaces, checking all placed tiles for validity instead
-		if (selectedTile) {
+		//added check to see if there is already an existing tile in the space
+		if (selectedTile && (!(clickedSpaceBehavior.hasTile))) {
 			//if (board.CheckIfSpaceIsValid(clickedSpace)) {
 				if (selectedTile.GetComponent<TileBehavior>().glyph=='*') {
 					FillBlank(selectedTile);
@@ -270,11 +268,7 @@ public class PlayerBehavior : MonoBehaviour {
 				selectedTile=null;
 			//}
 		}	
-	}
-	
-	public int selGridInt = 0;
-    public string[] selStrings = new string[] {"Grid 1", "Grid 2", "Grid 3", "Grid 4"};	
-	
+	}		
 
 	void OnGUI () {
 		

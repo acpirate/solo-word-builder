@@ -72,7 +72,7 @@ public class SpaceBehavior : MonoBehaviour {
 	
 	/* this function places a tile on the board, the tile is parented with the spaced, scaled, and positioned.  It retains the same rotation as the space.
 	 * Then the tile is unhighlited and its placedonboard setting is set to true so that it can't be moved anymore
-	 * finally if it is on a special space the space's spotlight is turned on and the color is switched to the color of the underlying space
+	 * 
 	 */
 	public void PlaceTile(Transform tile) {
 		TileBehavior tileBehavior=tile.GetComponent<TileBehavior>();
@@ -81,8 +81,7 @@ public class SpaceBehavior : MonoBehaviour {
 		tile.localScale=new Vector3(-.9f,-.9f,.5f);
 		tile.localPosition=new Vector3(0f,0f,-.5f);
 		tileBehavior.Unhighlight();
-		tileBehavior.placedOnBoard=true;
-		//turn off selection effects if they are on, turn on spotlight and switch color to special space color		
+		tileBehavior.placedOnBoard=true;	
 		hasTile=true;
 		SelectedEffectsOff();
 	}
