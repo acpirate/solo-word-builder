@@ -37,8 +37,7 @@ public class BoardBehavior : MonoBehaviour {
 	
 	//array of space objects so that spaces can be referenced by their coordinates on the board
 	public static Transform[,] spaces;
-	
-	
+		
 	// load the resources into the class variables so they are accessible later
 	void Awake () {
 	
@@ -46,7 +45,6 @@ public class BoardBehavior : MonoBehaviour {
 		doubleLetterMaterial = Resources.Load("Materials/Space/SpaceCenter/DoubleLetter", typeof(Material)) as Material;
 		doubleWordMaterial = Resources.Load("Materials/Space/SpaceCenter/DoubleWord", typeof(Material)) as Material;
 		tripleWordMaterial = Resources.Load("Materials/Space/SpaceCenter/TripleWord", typeof(Material)) as Material;	
-		
 		
 		//initialize spaces array
 		spaces=new Transform[boardRowSize+1,boardRowSize+1];
@@ -107,28 +105,27 @@ public class BoardBehavior : MonoBehaviour {
 					spaceHolder.GetComponent<SpaceBehavior>().type="Double Letter";
 					spaceHolder.transform.Find("SpaceCenter").renderer.material = doubleLetterMaterial;					
 					break;
+					
 				case 'r' :
 					spaceHolder.GetComponent<SpaceBehavior>().type="Triple Word";
-					spaceHolder.transform.Find("SpaceCenter").renderer.material = tripleWordMaterial;
-	
-					
+					spaceHolder.transform.Find("SpaceCenter").renderer.material = tripleWordMaterial;						
 					break;
+					
 				case 't' :
 					spaceHolder.GetComponent<SpaceBehavior>().type="Triple Letter";
-					spaceHolder.transform.Find("SpaceCenter").renderer.material = tripleLetterMaterial;
-
-					
+					spaceHolder.transform.Find("SpaceCenter").renderer.material = tripleLetterMaterial;				
 					break;
+					
 				case 'o' :
 					spaceHolder.GetComponent<SpaceBehavior>().type="Double Word";
 					spaceHolder.transform.Find("SpaceCenter").renderer.material = doubleWordMaterial;
-
-					
 					break;
+					
 				case 'n' :
 					spaceHolder.GetComponent<SpaceBehavior>().type="Normal";
 					// not assigning material because the spaceobject has a default normal material already assigned
 					break;
+					
 				default :
 					Debug.LogError("bad data in board data file : " + boardDataLine[counterX-1]);
 					break;		
@@ -138,96 +135,7 @@ public class BoardBehavior : MonoBehaviour {
 			}
 		}
 		
-		// this will always highlight the center tile
-		//CalculateValidSpaces();
-		
 	}
-	
-	// this doesnt help gameplay so I'm not doing it anymore, leaving in the code for possible revival in the future
-	//light up the valid spaces
-	public void CalculateValidSpaces() {
-		// store the value of the previous spaces before the lights are cleared
-		/*List<Transform> previousValidSpaces = new List<Transform>();
-		previousValidSpaces=validSpaces;*/
-		//clear all the lights
-		foreach(Transform space in transform) {
-			space.GetComponent<SpaceBehavior>().UnHighlight();
-		}
-		validSpaces.Clear();
-		
-		
-		/* three scenarios, no tiles placed yet, 1 tile placed, and more than one tile placed
-		 * if there are no tiles placed and there are no tiles scored the only valid space is the center space
-		 * 
-		 * if there is one tile placed then either the row or column containing that tile becomes valid
-		 * 
-		 * if there is more than one tile placed then the only valid space is in the row or column lined up with the two placed tiles
-		 * 
-		 */
-		
-		// prevent he possibility of invalid placement on the first turn, if the center tile is removed then all the other tiles are removed
-		if (!(spaces[boardCenter,boardCenter].GetComponent<SpaceBehavior>().hasTile)) {
-			player.RemoveAllUnscoredTiles();
-		}	
-		
-		
-		switch (player.workingTiles.Count) {
-			
-		case 0:
-			if (noTiles) {	
-				validSpaces.Add(spaces[boardCenter,boardCenter]);	
-			}			
-			break;
-		case 1:
-			//wow this actually works
-			SpaceBehavior firstPlacedSpace = player.workingTiles[0].transform.parent.GetComponent<SpaceBehavior>();
-			for (int i=((ShelfBehavior.maxTiles-1)*-1);i<ShelfBehavior.maxTiles;i++) {
-				if ((firstPlacedSpace.y+i>0) && (firstPlacedSpace.x+i>0) && (firstPlacedSpace.y+i<16) &&(firstPlacedSpace.x+i<16)) {
-					//dont highlight the space that already has a tile in it probably do this better in a separate function
-					if (i!=0) {
-					validSpaces.Add(spaces[firstPlacedSpace.x,firstPlacedSpace.y+i]);
-					validSpaces.Add(spaces[firstPlacedSpace.x+i,firstPlacedSpace.y]);
-					}
-				}	
-			}
-			break;
-		// case 2-7	
-		default :
-	/*		string downOrAcross="error";
-			if (player.workingTiles[0].parent.GetComponent<SpaceBehavior>().y == player.workingTiles[1].parent.GetComponent<SpaceBehavior>().y) {
-				downOrAcross="down";
-			}
-			if (player.workingTiles[0].parent.GetComponent<SpaceBehavior>().x == player.workingTiles[1].parent.GetComponent<SpaceBehavior>().x) {
-				downOrAcross="across";
-			}			
-			Debug.Log("first space position"+CalculateFirstPlacedSpace(downOrAcross).ToString()+"lastspaceposition"+CalculateLastPlacedSpace(downOrAcross).ToString());
-			for (int i=(CalculateLastPlacedSpace(downOrAcross)-shelf.childCount);i<(CalculateFirstPlacedSpace(downOrAcross)+shelf.childCount);i++) {
-				if (downOrAcross=="down") {
-					validSpaces.Add(spaces[i,player.workingTiles[0].parent.GetComponent<SpaceBehavior>().x]);
-				}
-				if (downOrAcross=="across") {
-					validSpaces.Add(spaces[player.workingTiles[0].parent.GetComponent<SpaceBehavior>().y,i]);
-				}	
-			}	*/
-			
-			
-			break;
-		}
-		
-
-		
-		
-		TurnOnSpaceLights(validSpaces);
-		
-	}	
-	
-	//turn on the lights in the valid spaces
-	void TurnOnSpaceLights(List<Transform> validSpaces) {
-		/* for every space in the valid space list turn on its light */
-		foreach (Transform validSpace in validSpaces) {	
-			validSpace.GetComponent<SpaceBehavior>().Highlight();
-		}	
-	}	
 	
 	//calculate the first and last space in the row or column with the word in progress
 	static int CalculateFirstPlacedSpace (string downOrAcross,List<Transform> placedTiles) {
@@ -295,7 +203,7 @@ public class BoardBehavior : MonoBehaviour {
 	}	
 	
 	
-	//returns true if this is the first word;
+	//returns true if this is the first word on the board
 	public static bool IsFirstword() {
 		bool firstWord=true;
 		
@@ -311,11 +219,8 @@ public class BoardBehavior : MonoBehaviour {
 	//method called by the player to validate the word
 	public static List<List<Transform>> GetScoredWords(List<Transform> placedTiles) {
 		
-	/*	foreach(Transform tile in placedTiles) {
-			Debug.Log(tile.GetComponent<TileBehavior>().glyph);
-		}*/
-
-		List <Transform> tempword= new List<Transform>();
+		//stores the word before it is added to the scored words list
+		List <Transform> tempword= new List<Transform>();  
 		
 		bool wordGoingDown=true;
 		bool wordGoingAcross=true;
@@ -339,7 +244,6 @@ public class BoardBehavior : MonoBehaviour {
 		
 	// only check for adjacent tiles if this isn't the first word
 		if (!(firstWord)) tilesAdjacent=CheckAdjacent(placedTiles);
-		
 		//Debug.Log("tiles adjacent"+tilesAdjacent);
 		
 		//logic to check for a single tile
@@ -400,7 +304,7 @@ public class BoardBehavior : MonoBehaviour {
 					tempword=BuildWord("down",   spaces[placedTiles[0].parent.GetComponent<SpaceBehavior>().x,CalculateFirstPlacedSpace("down",placedTiles)]);		
 				}	
 				else {
-				//Debug.Log ("wordGoingAcross"+CalculateLastPlacedSpace("across",placedTiles).ToString()+","+placedTiles[0].parent.GetComponent<SpaceBehavior>().x.ToString());
+					//Debug.Log ("wordGoingAcross"+CalculateLastPlacedSpace("across",placedTiles).ToString()+","+placedTiles[0].parent.GetComponent<SpaceBehavior>().x.ToString());
 					tempword=BuildWord("across",spaces[CalculateFirstPlacedSpace("across",placedTiles),placedTiles[0].parent.GetComponent<SpaceBehavior>().y]);
 				}	
 				scoredWords.Add(tempword);
@@ -456,7 +360,7 @@ public class BoardBehavior : MonoBehaviour {
 	}	
 	
 	
-	//this thecks the perpendicular for each tile in the opposite direction of the initial word
+	//this checks the perpendicular for each tile in the opposite direction of the initial word
 	static bool CheckPerpendicular(string acrossOrDown, Transform space) {
 		bool makesWord=false;
 		SpaceBehavior tempSpace=space.GetComponent<SpaceBehavior>();
@@ -485,9 +389,7 @@ public class BoardBehavior : MonoBehaviour {
 		
 		return makesWord;
 	}	
-	
-	
-	
+		
 	
 	//method used to check to make sure tiles are adjacent
 	static bool CheckAdjacent(List<Transform> placedTiles) {
@@ -568,7 +470,6 @@ public class BoardBehavior : MonoBehaviour {
 			while(walkcounter<=15 && (spaces[firstSpace.GetComponent<SpaceBehavior>().x,walkcounter].GetComponent<SpaceBehavior>().hasTile)) {
 				tempLetter=spaces[firstSpace.GetComponent<SpaceBehavior>().x,walkcounter];
 				//Debug.Log("in walk foward loop");
-				//if (tempLetter=='*') tempLetter=spaces[firstSpace.GetComponent<SpaceBehavior>().x,walkcounter].GetComponentInChildren<TileBehavior>().wildLetter;
 				//Debug.Log(tempLetter.ToString());
 				buildWord.Add(tempLetter);
 				//Debug.Log(buildWord);
@@ -592,7 +493,6 @@ public class BoardBehavior : MonoBehaviour {
 			while(walkcounter<=15 && (spaces[walkcounter,firstSpace.GetComponent<SpaceBehavior>().y].GetComponent<SpaceBehavior>().hasTile)) {
 				tempLetter=spaces[walkcounter,firstSpace.GetComponent<SpaceBehavior>().y];
 				//Debug.Log("in walk foward loop");
-				//if (tempLetter=='*') tempLetter=spaces[walkcounter,firstSpace.GetComponent<SpaceBehavior>().y].GetComponentInChildren<TileBehavior>().wildLetter;
 				//Debug.Log(tempLetter.ToString());
 				buildWord.Add(tempLetter);
 				//Debug.Log(buildWord);
@@ -633,25 +533,6 @@ public class BoardBehavior : MonoBehaviour {
 		}
 		
 		return tilesContiguous;
-	}
- 	
-
-	//Not used anymore, not checking if space is valid before placing tile
-	public bool CheckIfSpaceIsValid(Transform spaceToCheck) {
-		if (validSpaces.Contains(spaceToCheck)) {
-			return true;
-		}	
-		else return false;
-		
-	}	
-				
-	
-}
-
-public class WordSpaces {
-	
-	public List<Transform> wordSpaces= new List<Transform>();
-	
-	
+	}			
 	
 }

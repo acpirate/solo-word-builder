@@ -80,6 +80,7 @@ public class SpaceBehavior : MonoBehaviour {
 		tile.parent=transform;
 		tile.localScale=new Vector3(-.9f,-.9f,.5f);
 		tile.localPosition=new Vector3(0f,0f,-.5f);
+		tile.localRotation=new Quaternion(0f,0f,0f,0f);
 		tileBehavior.Unhighlight();
 		tileBehavior.placedOnBoard=true;	
 		hasTile=true;

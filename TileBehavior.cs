@@ -84,7 +84,6 @@ public class TileBehavior : MonoBehaviour {
 	//stupid unity program developed on macs so you need an alternate method to detect right clicks
 	void  OnMouseOver () 
 	{	
-
    		if(Input.GetMouseButtonDown(1) && placedOnBoard && (!(scored))) {
         	placedOnBoard=false;
 			// flag the space as not having a tile
@@ -99,6 +98,10 @@ public class TileBehavior : MonoBehaviour {
 		}	
 
 	}
+	
+	
+	
+	
 	
 	public void RevertBlank() {
 		transform.renderer.material.SetTexture("_MainTex",Resources.Load("LetterTileTextures/tile-blank",typeof(Texture)) as Texture);
