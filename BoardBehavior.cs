@@ -319,9 +319,16 @@ public class BoardBehavior : MonoBehaviour {
 				}	
 			}
 			
+			//fixing scoring of single tile in center
+			if (singleTile && middleCovered && (!(spaces[boardCenter,boardCenter].GetComponentInChildren<TileBehavior>().scored))) {
+				List<Transform> singleTileWord=new List<Transform>();
+				singleTileWord.Add(placedTiles[0]);
+				scoredWords.Add(singleTileWord);
+			}
+			
 			
 		}
-		Debug.Log(scoredWords.Count);
+		//Debug.Log(scoredWords.Count);
 		
 		return scoredWords;
 	}
