@@ -29,12 +29,6 @@ public class BoardBehavior : MonoBehaviour {
 	static Material doubleWordMaterial;
 	static Material tripleWordMaterial;
 	
-	//used to check to see if no tiles have been placed
-	static bool noTiles=true;
-	
-	//list of valid spaces
-	List<Transform> validSpaces = new List<Transform>();
-	
 	//array of space objects so that spaces can be referenced by their coordinates on the board
 	public static Transform[,] spaces;
 		

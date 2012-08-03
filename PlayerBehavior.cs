@@ -106,8 +106,8 @@ public class PlayerBehavior : MonoBehaviour {
 		/* Double Word, Double Letter, Triple word, Triple Letter */
 		
 		int tempScore=0;
-		bool scoreDoubleWord=false;
-		bool scoreTripleWord=false;
+		int scoreDoubleWord=0;
+		int scoreTripleWord=0;
 		
 		for (int i=0;i<scoredWord.Count;i++) {
 			//temp varialbe to reference the child tile of the space we are scoring
@@ -115,8 +115,8 @@ public class PlayerBehavior : MonoBehaviour {
 			SpaceBehavior spaceReference=scoredWord[i].GetComponent<SpaceBehavior>();
 			//if a tiles hasn't been scored yet take its special space into account
 			if (!(tileReference.scored)) {
-				if (spaceReference.type=="Double Word") scoreDoubleWord=true;
-				if (spaceReference.type=="Triple Word") scoreTripleWord=true;
+				if (spaceReference.type=="Double Word") scoreDoubleWord++;
+				if (spaceReference.type=="Triple Word") scoreTripleWord++;
 				if (spaceReference.type=="Double Letter") tempScore+=tileReference.scoreValue;
 				if (spaceReference.type=="Triple Letter") tempScore+=(tileReference.scoreValue*2);
 			}
@@ -125,9 +125,10 @@ public class PlayerBehavior : MonoBehaviour {
 		}
 		
 	
-		//dobule and triple letter bonus, cant get both on standard scrabble board and can't get any more than once so not worrying about extra multipliers
-		if (scoreDoubleWord) tempScore*=2;
-		if (scoreTripleWord) tempScore*=3;
+		//double and triple letter bonus, cant get both on standard scrabble board and can't get any more than once so not worrying about extra multipliers
+		tempScore=(int) (tempScore * Math.Pow(2d,(double) scoreDoubleWord));
+		tempScore=(int) (tempScore * Math.Pow(3d,(double) scoreTripleWord));
+		
 		//50 point bonus for using 7 letters
 		if (workingTiles.Count==7) tempScore+=50;
 		
