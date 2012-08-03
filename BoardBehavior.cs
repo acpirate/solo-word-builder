@@ -341,11 +341,11 @@ public class BoardBehavior : MonoBehaviour {
 		
 		//check neighbors on perpendicular to see if there are any letters
 		if (CheckPerpendicular(acrossOrDown,tile.parent)) {
-			Debug.Log("there is a word perpendicular to "+tile.GetComponent<TileBehavior>().glyph+" in the "+acrossOrDown+" direction");
+			//Debug.Log("there is a word perpendicular to "+tile.GetComponent<TileBehavior>().glyph+" in the "+acrossOrDown+" direction");
 			List<Transform> tempTiles=new List<Transform>();
 			tempTiles.Add(tile);
 				if (acrossOrDown=="down") {
-					Debug.Log("entering perpendicular buildword down");
+					//Debug.Log("entering perpendicular buildword down");
 					//Debug.Log("wordGoingDown"+placedTiles[0].parent.GetComponent<SpaceBehavior>().x.ToString()+","+CalculateFirstPlacedSpace("down",placedTiles).ToString());
 					
 					tempWord=BuildWord("across",spaces[CalculateFirstPlacedSpace("across",tempTiles),tile.parent.GetComponent<SpaceBehavior>().y]);
@@ -369,7 +369,7 @@ public class BoardBehavior : MonoBehaviour {
 		
 		if (acrossOrDown=="across") {
 			
-			Debug.Log("in checkperpendicular across");
+			//Debug.Log("in checkperpendicular across");
 			if (tempSpace.y>1) {
 				if (spaces[tempSpace.x,tempSpace.y-1].GetComponent<SpaceBehavior>().hasTile) makesWord=true;
 			}	
@@ -378,7 +378,7 @@ public class BoardBehavior : MonoBehaviour {
 			}				
 		}
 		if (acrossOrDown=="down") {
-			Debug.Log("in checkperpendicular down");
+			//Debug.Log("in checkperpendicular down");
 			if (tempSpace.x>1) {
 				if (spaces[tempSpace.x-1,tempSpace.y].GetComponent<SpaceBehavior>().hasTile) makesWord=true;
 			}	

@@ -108,13 +108,10 @@ public class BagBehavior : MonoBehaviour {
 		}
 		
 		return (temptile);
-	}	
-	
+	}
 	
 	void OnMouseDown() {
 		// when the bag is clicked check to see if it is empty, if not tell call the shelf's add function
-		
-		
 		
 	}	
 	

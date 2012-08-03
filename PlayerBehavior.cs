@@ -22,6 +22,9 @@ public class PlayerBehavior : MonoBehaviour {
 	//flag to determine whether or not to draw blank tile pick gui elements
 	bool pickingBlank=false;
 	
+	//flag to determine if player is in end game dialog
+	bool endGameDialog=false;
+	
 	//initialization as object is created
 	void Awake() {
 		workingTiles = new List<Transform>();
@@ -39,7 +42,7 @@ public class PlayerBehavior : MonoBehaviour {
 	void Start () {
 		
 		//routine for testing blank tile, forcing blank to always be first tile
-		//shelf.AddTile(bag.DrawBlank());
+		shelf.AddTile(bag.DrawBlank());
 		
 		// draw tiles to fill the shelf
 		
@@ -185,37 +188,69 @@ public class PlayerBehavior : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
-		
+		if (!(pickingBlank || endGameDialog)) {
 		// have to test each key because Input.inputString is flakey
-		if (Input.GetKeyDown(KeyCode.A)) KeyBoardSelect('A');      
-		if (Input.GetKeyDown(KeyCode.B)) KeyBoardSelect('B');
-		if (Input.GetKeyDown(KeyCode.C)) KeyBoardSelect('C');
-		if (Input.GetKeyDown(KeyCode.D)) KeyBoardSelect('D');
-		if (Input.GetKeyDown(KeyCode.E)) KeyBoardSelect('E');      
-		if (Input.GetKeyDown(KeyCode.F)) KeyBoardSelect('F');
-		if (Input.GetKeyDown(KeyCode.G)) KeyBoardSelect('G');
-		if (Input.GetKeyDown(KeyCode.H)) KeyBoardSelect('H');
-		if (Input.GetKeyDown(KeyCode.I)) KeyBoardSelect('I');      
-		if (Input.GetKeyDown(KeyCode.J)) KeyBoardSelect('J');
-		if (Input.GetKeyDown(KeyCode.K)) KeyBoardSelect('K');
-		if (Input.GetKeyDown(KeyCode.L)) KeyBoardSelect('L');
-		if (Input.GetKeyDown(KeyCode.M)) KeyBoardSelect('M');      
-		if (Input.GetKeyDown(KeyCode.N)) KeyBoardSelect('N');
-		if (Input.GetKeyDown(KeyCode.O)) KeyBoardSelect('O');
-		if (Input.GetKeyDown(KeyCode.P)) KeyBoardSelect('P');
-		if (Input.GetKeyDown(KeyCode.Q)) KeyBoardSelect('Q');      
-		if (Input.GetKeyDown(KeyCode.R)) KeyBoardSelect('R');
-		if (Input.GetKeyDown(KeyCode.S)) KeyBoardSelect('S');
-		if (Input.GetKeyDown(KeyCode.T)) KeyBoardSelect('T');
-		if (Input.GetKeyDown(KeyCode.U)) KeyBoardSelect('U');      
-		if (Input.GetKeyDown(KeyCode.V)) KeyBoardSelect('V');
-		if (Input.GetKeyDown(KeyCode.W)) KeyBoardSelect('W');
-		if (Input.GetKeyDown(KeyCode.X)) KeyBoardSelect('X');
-		if (Input.GetKeyDown(KeyCode.Y)) KeyBoardSelect('Y');      
-		if (Input.GetKeyDown(KeyCode.Z)) KeyBoardSelect('Z');
-		if (Input.GetKeyDown(KeyCode.Space)) KeyBoardSelect('*');
-		if ((Input.GetKeyDown(KeyCode.Backspace)) || (Input.GetKeyDown(KeyCode.Delete))) RemoveLastTile();
-			
+			if (Input.GetKeyDown(KeyCode.A)) KeyBoardSelect('A');      
+			if (Input.GetKeyDown(KeyCode.B)) KeyBoardSelect('B');
+			if (Input.GetKeyDown(KeyCode.C)) KeyBoardSelect('C');
+			if (Input.GetKeyDown(KeyCode.D)) KeyBoardSelect('D');
+			if (Input.GetKeyDown(KeyCode.E)) KeyBoardSelect('E');      
+			if (Input.GetKeyDown(KeyCode.F)) KeyBoardSelect('F');
+			if (Input.GetKeyDown(KeyCode.G)) KeyBoardSelect('G');
+			if (Input.GetKeyDown(KeyCode.H)) KeyBoardSelect('H');
+			if (Input.GetKeyDown(KeyCode.I)) KeyBoardSelect('I');      
+			if (Input.GetKeyDown(KeyCode.J)) KeyBoardSelect('J');
+			if (Input.GetKeyDown(KeyCode.K)) KeyBoardSelect('K');
+			if (Input.GetKeyDown(KeyCode.L)) KeyBoardSelect('L');
+			if (Input.GetKeyDown(KeyCode.M)) KeyBoardSelect('M');      
+			if (Input.GetKeyDown(KeyCode.N)) KeyBoardSelect('N');
+			if (Input.GetKeyDown(KeyCode.O)) KeyBoardSelect('O');
+			if (Input.GetKeyDown(KeyCode.P)) KeyBoardSelect('P');
+			if (Input.GetKeyDown(KeyCode.Q)) KeyBoardSelect('Q');      
+			if (Input.GetKeyDown(KeyCode.R)) KeyBoardSelect('R');
+			if (Input.GetKeyDown(KeyCode.S)) KeyBoardSelect('S');
+			if (Input.GetKeyDown(KeyCode.T)) KeyBoardSelect('T');
+			if (Input.GetKeyDown(KeyCode.U)) KeyBoardSelect('U');      
+			if (Input.GetKeyDown(KeyCode.V)) KeyBoardSelect('V');
+			if (Input.GetKeyDown(KeyCode.W)) KeyBoardSelect('W');
+			if (Input.GetKeyDown(KeyCode.X)) KeyBoardSelect('X');
+			if (Input.GetKeyDown(KeyCode.Y)) KeyBoardSelect('Y');      
+			if (Input.GetKeyDown(KeyCode.Z)) KeyBoardSelect('Z');
+			if (Input.GetKeyDown(KeyCode.Space)) KeyBoardSelect('*');
+			if ((Input.GetKeyDown(KeyCode.Backspace)) || (Input.GetKeyDown(KeyCode.Delete))) RemoveLastTile();
+			if ((Input.GetKeyDown(KeyCode.Return)) || (Input.GetKeyDown(KeyCode.KeypadEnter))) Debug.Log("hit enter");
+		}
+		
+		//allow keyboard select of blank tile
+		if (pickingBlank) {
+			if (Input.GetKeyDown(KeyCode.A)) SelectedBlankLetter('A');      
+			if (Input.GetKeyDown(KeyCode.B)) SelectedBlankLetter('B');
+			if (Input.GetKeyDown(KeyCode.C)) SelectedBlankLetter('C');
+			if (Input.GetKeyDown(KeyCode.D)) SelectedBlankLetter('D');
+			if (Input.GetKeyDown(KeyCode.E)) SelectedBlankLetter('E');      
+			if (Input.GetKeyDown(KeyCode.F)) SelectedBlankLetter('F');
+			if (Input.GetKeyDown(KeyCode.G)) SelectedBlankLetter('G');
+			if (Input.GetKeyDown(KeyCode.H)) SelectedBlankLetter('H');
+			if (Input.GetKeyDown(KeyCode.I)) SelectedBlankLetter('I');      
+			if (Input.GetKeyDown(KeyCode.J)) SelectedBlankLetter('J');
+			if (Input.GetKeyDown(KeyCode.K)) SelectedBlankLetter('K');
+			if (Input.GetKeyDown(KeyCode.L)) SelectedBlankLetter('L');
+			if (Input.GetKeyDown(KeyCode.M)) SelectedBlankLetter('M');      
+			if (Input.GetKeyDown(KeyCode.N)) SelectedBlankLetter('N');
+			if (Input.GetKeyDown(KeyCode.O)) SelectedBlankLetter('O');
+			if (Input.GetKeyDown(KeyCode.P)) SelectedBlankLetter('P');
+			if (Input.GetKeyDown(KeyCode.Q)) SelectedBlankLetter('Q');      
+			if (Input.GetKeyDown(KeyCode.R)) SelectedBlankLetter('R');
+			if (Input.GetKeyDown(KeyCode.S)) SelectedBlankLetter('S');
+			if (Input.GetKeyDown(KeyCode.T)) SelectedBlankLetter('T');
+			if (Input.GetKeyDown(KeyCode.U)) SelectedBlankLetter('U');      
+			if (Input.GetKeyDown(KeyCode.V)) SelectedBlankLetter('V');
+			if (Input.GetKeyDown(KeyCode.W)) SelectedBlankLetter('W');
+			if (Input.GetKeyDown(KeyCode.X)) SelectedBlankLetter('X');
+			if (Input.GetKeyDown(KeyCode.Y)) SelectedBlankLetter('Y');     
+			if (Input.GetKeyDown(KeyCode.Z)) SelectedBlankLetter('Z');			
+		}	
+		
  	}	
 	
 	// if delete or backpsace is pressed remove last placed tile		
@@ -307,10 +342,35 @@ public class PlayerBehavior : MonoBehaviour {
 				if (GUI.Button (new Rect (10,230,40,40), "Y")) SelectedBlankLetter('Y');
 				if (GUI.Button (new Rect (60,230,40,40), "Z")) SelectedBlankLetter('Z');				
 				// End the group we started above. This is very important to remember!
-				GUI.EndGroup ();
-					
+				GUI.EndGroup ();		
 		}
+		if (endGameDialog) {
+			GUI.BeginGroup (new Rect (Screen.width*.5f - 50, Screen.height*.5f - 50, Screen.width*.5f, Screen.height*.5f));	
+				GUI.Box (new Rect (0,0,310,310),"Your current score is "+totalScore+"\nThere are "+bag.transform.childCount+" tiles left in the bag.\n\n" +
+					"Are you sure you want to end your game?");
+				if (GUI.Button (new Rect (100,100,100,40), "End Game")) GameOver();
+				if (GUI.Button (new Rect (100,200,100,40), "Continue")) EndGameCancel();
+			
+			GUI.EndGroup ();
+		}	
+		
+		
 	}
+	
+	void GameOver() {
+		Debug.Log ("Game Over");	
+	}
+	
+	//functions to control ending the game
+	public void EndGameConfirm() {
+		blur.active=true;
+		endGameDialog=true;
+	}	
+	
+	public void EndGameCancel() {
+		blur.active=false;
+		endGameDialog=false;
+	}	
 	
 	
 	//fill in a blank tile, need to do it here so I don't do 100 ongui draws each time the blank is active

@@ -10,8 +10,8 @@ public class CursorBehavior : MonoBehaviour {
 
 	void Start()
 	{
-		//temporarily show cursor for debugging purposes
-    	//Screen.showCursor = false;
+		//comment this out to show cursor for debugging purposes
+    	Screen.showCursor = false;
 	}
 
 	
