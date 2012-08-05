@@ -25,38 +25,40 @@ public class PlayerBehavior : MonoBehaviour {
 	//flag to determine if player is in end game dialog
 	bool endGameDialog=false;
 	
+	//flag for game over confirmed
+	bool gameOverConfirmed=false;
+	
+	//flag for in high score stage\
+	bool inHighScores=false;
+	
+	//username
+	private string playerName="";
+	
+	//score
+	static int totalScore;
+	//string for storing the high score listing returned from the server
+	//stupid 0 indexed arrays
+	string[] splitHighScore=new string[44];
+	
 	//initialization as object is created
 	void Awake() {
 		workingTiles = new List<Transform>();
-		
-		
+		//find the blur object which is used to make a backdrop for the gui		
 		if (!(blur)) {
-		blur= GameObject.Find("Blur");
-		blur.active=false;
+			blur= GameObject.Find("Blur");
+			blur.active=false;
 		}		
 	}	
 	
-	static int totalScore;
-	
 	// Use this for initialization (on first frame?)
 	void Start () {
-		
 		//routine for testing blank tile, forcing blank to always be first tile
-		shelf.AddTile(bag.DrawBlank());
+		//shelf.AddTile(bag.DrawBlank());
 		
-		// draw tiles to fill the shelf
-		
+		// draw tiles to fill the shelf	
 		shelf.FillTiles();
-		//draw 7 tiles
-		//place on shelf
-		//for(int drawCounter=0;drawCounter<ShelfBehavior.maxTiles;drawCounter++) {
-			//shelf.AddTile(bag.Draw()); 
-		//}
 	}
-	
-	
-
-	
+		
 	// called when the player has finished placing his tiles and clicks the "score" button	
 	public void ScoreWord() {
 		//list of lists of spaces containing all of the words that were scored
@@ -188,7 +190,7 @@ public class PlayerBehavior : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
-		if (!(pickingBlank || endGameDialog)) {
+		if (!(pickingBlank || endGameDialog || gameOverConfirmed)) {
 		// have to test each key because Input.inputString is flakey
 			if (Input.GetKeyDown(KeyCode.A)) KeyBoardSelect('A');      
 			if (Input.GetKeyDown(KeyCode.B)) KeyBoardSelect('B');
@@ -218,7 +220,7 @@ public class PlayerBehavior : MonoBehaviour {
 			if (Input.GetKeyDown(KeyCode.Z)) KeyBoardSelect('Z');
 			if (Input.GetKeyDown(KeyCode.Space)) KeyBoardSelect('*');
 			if ((Input.GetKeyDown(KeyCode.Backspace)) || (Input.GetKeyDown(KeyCode.Delete))) RemoveLastTile();
-			if ((Input.GetKeyDown(KeyCode.Return)) || (Input.GetKeyDown(KeyCode.KeypadEnter))) Debug.Log("hit enter");
+			if ((Input.GetKeyDown(KeyCode.Return)) || (Input.GetKeyDown(KeyCode.KeypadEnter))) ScoreWord();
 		}
 		
 		//allow keyboard select of blank tile
@@ -249,7 +251,7 @@ public class PlayerBehavior : MonoBehaviour {
 			if (Input.GetKeyDown(KeyCode.X)) SelectedBlankLetter('X');
 			if (Input.GetKeyDown(KeyCode.Y)) SelectedBlankLetter('Y');     
 			if (Input.GetKeyDown(KeyCode.Z)) SelectedBlankLetter('Z');			
-		}	
+		}
 		
  	}	
 	
@@ -344,6 +346,7 @@ public class PlayerBehavior : MonoBehaviour {
 				// End the group we started above. This is very important to remember!
 				GUI.EndGroup ();		
 		}
+		
 		if (endGameDialog) {
 			GUI.BeginGroup (new Rect (Screen.width*.5f - 50, Screen.height*.5f - 50, Screen.width*.5f, Screen.height*.5f));	
 				GUI.Box (new Rect (0,0,310,310),"Your current score is "+totalScore+"\nThere are "+bag.transform.childCount+" tiles left in the bag.\n\n" +
@@ -352,13 +355,79 @@ public class PlayerBehavior : MonoBehaviour {
 				if (GUI.Button (new Rect (100,200,100,40), "Continue")) EndGameCancel();
 			
 			GUI.EndGroup ();
+		}
+		
+		if (gameOverConfirmed) {
+			//apparently you can't use the input functions with gui text boxes.....have to use the event in the gui before the dialog box is drawn
+			if ((playerName!="")&&(Event.current.type == EventType.KeyDown && (Event.current.keyCode == KeyCode.KeypadEnter || Event.current.keyCode == KeyCode.Return)))	{
+				//this doesn't make sense, need to fix
+				gameOverConfirmed=false;
+				inHighScores=true;
+				GetHighScores();
+				
+			}	
+			
+			GUI.BeginGroup (new Rect (Screen.width*.5f - 50, Screen.height*.5f - 50, Screen.width*.5f, Screen.height*.5f));
+				GUI.Label (new Rect (10, 10, 400, 30), "Type your name then hit enter to see your high score list:");
+				playerName = GUI.TextField (new Rect (25, 60, 100, 30), playerName);
+			GUI.EndGroup ();
+		}	
+		
+		
+		if (inHighScores) {
+			GUI.BeginGroup (new Rect (Screen.width*.5f - 50, Screen.height*.2f - 50, Screen.width*.7f, Screen.height*.9f));
+				GUI.Label (new Rect (0,0,Screen.height*.4f - 50,Screen.height*.7f),"This game you scored "+totalScore+"\nPlease wait while the server loads the Top 10 scores for "+playerName+":");
+				if(splitHighScore[0]!=null) {
+					for(int i=1;i<11;i++) {
+						if(splitHighScore[i]!=null) {
+							GUI.Label (new Rect (10, 25*i+75, 400, 20), (i)+". "+splitHighScore[i*4]+" "+splitHighScore[(i*4)+1]);
+						}
+					}
+				}
+			GUI.EndGroup();
 		}	
 		
 		
 	}
 	
+	void GetHighScores() {
+		StartCoroutine(ScoreServerConnect());
+		
+		
+				
+	}	
+	
+	IEnumerator ScoreServerConnect() {
+		/*Debug.Log(DateTime.Now.Year+"-"+
+			DateTime.Now.Month+"-"+
+			DateTime.Now.Day);*/
+		
+		
+		string url="http://nodj.host-ed.me/solo-word-builder/solo-word-builder-highscore.php?Name="+playerName+
+			"&Score="+totalScore+
+			"&Year="+DateTime.Now.Year.ToString("0000")+
+			"&Month="+DateTime.Now.Month.ToString("00")+
+			"&Day="+DateTime.Now.Day.ToString("00")+
+			"&Hour="+DateTime.Now.Hour.ToString("00")+
+			"&Minute="+DateTime.Now.Minute.ToString("00");
+		
+		
+		//Debug.Log(url);
+		WWW www = new WWW(url);
+        yield return www;
+		Debug.Log(www.text);
+		string[] stringSeparators = new string[] {"<br/>"," "};
+		
+		splitHighScore = www.text.Split(stringSeparators, StringSplitOptions.None);
+    }	
+	
+	
+	//after the game over is confirmed
 	void GameOver() {
-		Debug.Log ("Game Over");	
+		gameOverConfirmed=true;
+		//http://nodj.host-ed.me/solo-word-builder/solo-word-builder-highscore.php?Name=chode&Score=245&Year=1328&Month=08&Day=08&Hour=08&Minute=08
+		endGameDialog=false;
+		
 	}
 	
 	//functions to control ending the game
@@ -367,6 +436,7 @@ public class PlayerBehavior : MonoBehaviour {
 		endGameDialog=true;
 	}	
 	
+	//put things back if game over is cancelled
 	public void EndGameCancel() {
 		blur.active=false;
 		endGameDialog=false;
